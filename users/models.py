@@ -47,13 +47,13 @@ class UserModel(AbstractUser, BaseModel):
         return f"{self.first_name} {self.last_name}"
         
     def check_username(self):
-        if not self.usernamer:
+        if not self.username:
             temp_username = F"instagram-{uuid.uuid4()}"
             while UserModel.objects.filter(username=temp_username).exists():
                 self.check_username()
             self.username = temp_username
     
-    def check_password(self):
+    def check_pass(self):
         if self.password:
             self.password = f"password-{uuid.uuid4()}"
     
@@ -66,22 +66,21 @@ class UserModel(AbstractUser, BaseModel):
     
     def clean(self) -> None:
         self.check_username()
-        self.check_password()
+        self.check_pass()
         self.check_email()
         self.hashing_password()
     
     def save(self, *args, **kwargs):
         if not self.pk:
-            self.is_active =False
             self.clean()
         super(UserModel, self).save(*args, **kwargs)
         
-    def verifay_code(self, vr_type):
-        code = ''.join([str(random.randint(1, 10) % 10 ) for _ in range(4)])
+    def create_verify_code(self, verify_type):
+        code = "".join([str(random.randint(1, 100) % 10) for _ in range(4)])
         ConfimationModel.objects.create(
             code=code,
             user=self,
-            verfiy_types= vr_type
+            verify_type=verify_type
         )
         return code
     
@@ -90,7 +89,7 @@ class UserModel(AbstractUser, BaseModel):
         refresh_token = RefreshToken.for_user(self)
         
         response = {
-            'accsess_token': str(refresh_token.access_token),
+            'access_token': str(refresh_token.access_token),
             'refresh_token': str(refresh_token)
         }
         
@@ -102,23 +101,23 @@ PHONE_VERFIY_TIME = 2
     
     
 class ConfimationModel(BaseModel):
-    verfiy_types = (
+    verify_type = (
         (VIA_EMAIL, VIA_EMAIL),
         (VIA_PHONE, VIA_PHONE),
     )
-    
-    verfiy_types = models.CharField(max_length=128, choices=verfiy_types, default=VIA_EMAIL)
+    code = models.CharField(max_length=4)
+    verify_type = models.CharField(max_length=128, choices=verify_type, default=VIA_EMAIL)
     user = models.ForeignKey(UserModel, on_delete=models.CASCADE, related_name='verification_code')
-    expritation_time = models.DateTimeField()
+    expiration_time = models.DateTimeField()
     is_confirmed = models.BooleanField(default=False)
     
     
     def save(self, *args, **kwargs):
         if not self.pk:
-            if self.verfiy_types == VIA_EMAIL:
-                self.expritation_time = timezone.now() + timezone.timedelta(minutes=EMAIL_VERFIY_TIME)
+            if self.verify_type == VIA_EMAIL:
+                self.expiration_time = timezone.now() + timezone.timedelta(minutes=EMAIL_VERFIY_TIME)
             else:
-                self.expritation_time = timezone.now() + timezone.timedelta(minutes=PHONE_VERFIY_TIME)
+                self.expiration_time = timezone.now() + timezone.timedelta(minutes=PHONE_VERFIY_TIME)
                 
         super(ConfimationModel, self).save(*args, **kwargs)
         

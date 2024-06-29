@@ -21,7 +21,7 @@ class VerifyCodeAPIView(APIView):
         code = request.data.get('code')
 
         verification_code = ConfimationModel.objects.filter(
-            user=user.id, code=code, is_confirmed=False, expiration_time__gte=timezone.now())
+            user_id=user.id, code=code, is_confirmed=False, expiration_time__gte=timezone.now())
         if verification_code.exists():
             user.auth_status = CODE_VERIFIED
             user.save()
@@ -32,7 +32,6 @@ class VerifyCodeAPIView(APIView):
                 'success': True,
                 'message': "Your code is successfully verified.",
                 'auth_status': CODE_VERIFIED,
-                'access_token': user.token()['access_token']
             }
             return Response(response, status=status.HTTP_200_OK)
         else:
@@ -42,6 +41,33 @@ class VerifyCodeAPIView(APIView):
             }
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
+
+class ResendVerifycodeAPi(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request, *args, **kwargs):
+        user = self.request.user
+
+        verification_code = ConfimationModel.objects.filter(
+            user_id=user.id, is_confirmed=True, expiration_time__gte=timezone.now())
+        if verification_code:
+            user.auth_status = CODE_VERIFIED
+            user.save()
+
+            verification_code.update(is_confirmed=True)
+
+            response = {
+                'success': True,
+                'message': "Your code is successfully verified.",
+                'auth_status': CODE_VERIFIED,
+            }
+            return Response(response, status=status.HTTP_200_OK)
+        else:
+            response = {
+                'success': False,
+                'message': "Your code is invalid or already expired"
+            }
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
     
 
 class UpdateUserAPIView(UpdateAPIView):
@@ -81,7 +107,6 @@ class UserAvatarUpdate(APIView):
             res = {
                 'success': True,
                 'message': 'User avatar updated successfully',
-                'avatar': user.avatar.url
             }
             return Response(res)        
         return Response(serializers.errors , status=status.HTTP_400_BAD_REQUEST)

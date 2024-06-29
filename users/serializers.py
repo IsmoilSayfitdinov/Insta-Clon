@@ -123,7 +123,7 @@ class UpdateUserSerializer(serializers.Serializer):
 
 class UpdateAvatarUser(serializers.Serializer):
     avatar = serializers.ImageField(validators=[FileExtensionValidator(allowed_extensions=[
-        'jpg', 'jpeg', 'png', 'heic', 'heif'
+        'jpg', 'jpeg', 'png'
     ])])
     
     def update(self, instance, validated_data):
@@ -133,7 +133,8 @@ class UpdateAvatarUser(serializers.Serializer):
             instance.auth_status = PHOTO
             instance.save()
         return instance
-
+    
+    
 class ResetPasswordSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(read_only=True)
     password = serializers.CharField(min_length=8, required=True, write_only=True)

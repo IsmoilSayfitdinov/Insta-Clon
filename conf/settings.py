@@ -32,7 +32,7 @@ INSTALLED_APPS = [
     "drf_yasg",
     "rest_framework",
     'rest_framework_simplejwt',
-    
+    'corsheaders',    
     
     #apps
     'shared',
@@ -50,7 +50,18 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
+
+CORS_ORIGIN_ALLOW_ALL = True
+# yoki aniq domenlarni qo'shish
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5500',
+    'http://127.0.0.1:5500',
+    # boshqa kerakli domenlar
+]
+
 
 ROOT_URLCONF = 'conf.urls'
 

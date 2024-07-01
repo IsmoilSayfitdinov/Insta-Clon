@@ -29,7 +29,6 @@ INSTALLED_APPS = [
     "drf_yasg",
     "rest_framework",
     'rest_framework_simplejwt',
-    'corsheaders',    
     
     #apps
     'shared',
@@ -51,9 +50,8 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
 ]
 
-CORS_ORIGIN_ALLOW_ALL = config('CORS_ORIGIN_ALLOW_ALL', cast=bool)
+
 # yoki aniq domenlarni qo'shish
-CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS')
 
 
 ROOT_URLCONF = 'conf.urls'

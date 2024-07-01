@@ -8,7 +8,6 @@ from django.contrib.auth import authenticate
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import status
 import re
-from django.contrib.auth import get_user_model
 
 COUNTRY_CODES = [
     "+1", "+7", "+86", "+81", "+82", "+91", "+92", "+998", "+49", "+33", "+44", "+39", "+34", "+90", "+20", "+966",

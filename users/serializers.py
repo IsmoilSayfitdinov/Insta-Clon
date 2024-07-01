@@ -8,6 +8,7 @@ from django.contrib.auth import authenticate
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import status
 import re
+from django.contrib.auth import get_user_model
 
 COUNTRY_CODES = [
     "+1", "+7", "+86", "+81", "+82", "+91", "+92", "+998", "+49", "+33", "+44", "+39", "+34", "+90", "+20", "+966",
@@ -202,37 +203,43 @@ class Loginsrerialziers(TokenObtainPairSerializer):
         
     def validate(self, attrs):
         userinput = attrs.get("userinput")
-        
-        if user.auth_type == PHOTO or user.auth_type == DONE:
             
-            if userinput.endswith("@gmail.com"):
-                user = UserModel.objects.filter(email=userinput).first()
+        if userinput.endswith("@gmail.com"):
+            user = UserModel.objects.filter(email=userinput).first()
                 
-            elif userinput.startswith("+998") or userinput.startswith("+"):
-                user = UserModel.objects.filter(phone_number=userinput).first()
-                
-            else:
-                user = UserModel.objects.filter(username=userinput).first()
-            
-            if user is None:
-                raise serializers.ValidationError({"success": False, "message": "User not found"})
-            
-            auth_user = authenticate(username=user.username, password=attrs.get("password"))
-            
-            if auth_user is None:
-                raise serializers.ValidationError({"success": False, "message": "Username or password not found"})
-            
-            res =  {
-                'success': True,
-                'access_token': auth_user.token()['access_token'],
-                'refresh_token': auth_user.token()['refresh_token'],
-            }
+        elif userinput.startswith("+998") or userinput.startswith("+"):
+            user = UserModel.objects.filter(phone_number=userinput).first()
             
         else:
-            res = {
-                'success': False,
-                'status': status.HTTP_400_BAD_REQUEST
+            user = UserModel.objects.filter(username=userinput).first()
+        if user is None:
+            raise serializers.ValidationError({
+                "success": False,
+                "message": "User not found"
+                })
+        
+        auth_user = authenticate(username=user.username, password=attrs.get("password"))
+        if auth_user is None:
+            raise serializers.ValidationError({
+                "success": False,
+                "message": "Username or password not found"
+                })
+        
+        if user.auth_status == PHOTO or user.auth_status == DONE:
+            res =  {
+            'success': True,
+            'access_token': auth_user.token()['access_token'],
+            'refresh_token': auth_user.token()['refresh_token'],
             }
+        
+        else:
+            res = {
+                "success": False,
+                "status": status.HTTP_400_BAD_REQUEST,
+                "message": "Your status not PHOTO or DONE"
+            }
+            
+        
             
         return res
         

@@ -6,7 +6,6 @@ from users.views import (
   LogoutVIEW, GetReturnRefereshTokenAPIView
 )
 
-app_name = "users"
 
 urlpatterns = [
   path("refresh/", GetReturnRefereshTokenAPIView.as_view(), name="refresh"),

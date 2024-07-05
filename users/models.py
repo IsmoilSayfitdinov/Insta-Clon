@@ -40,7 +40,7 @@ class UserModel(AbstractUser, BaseModel):
     avatar = models.ImageField(upload_to='avatar',null=True, blank=True)
     
     def __str__(self):
-        return self.get_full_name()
+        return self.username
     
     @property
     def fullname(self):
@@ -54,7 +54,7 @@ class UserModel(AbstractUser, BaseModel):
             self.username = temp_username
     
     def check_pass(self):
-        if self.password:
+        if not self.password:
             self.password = f"password-{uuid.uuid4()}"
     
     def check_email(self):
@@ -64,7 +64,7 @@ class UserModel(AbstractUser, BaseModel):
         if not self.password.startswith('pbkdf2_sha256'):
             self.set_password(self.password)
     
-    def clean(self) -> None:
+    def clean(self):
         self.check_username()
         self.check_pass()
         self.check_email()

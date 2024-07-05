@@ -21,8 +21,6 @@ def validator_email_and_phone(value):
     if value.startswith('+') and  any(value.startswith(code) for code in COUNTRY_CODES):
         if not re.match(phone_regex, value):
             raise serializers.ValidationError('Phone number error')
-    
-   
     else:
         if not re.match(email_regex, value):
             raise serializers.ValidationError('Invalid email address')

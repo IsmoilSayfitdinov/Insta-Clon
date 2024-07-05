@@ -1,9 +1,10 @@
 from django.db import models
 from post.models import PostUserModel
-class LikePostModel(models.Model):
-    post = models.ForeignKey(PostUserModel, on_delete=models.CASCADE)
-    like = models.BooleanField(default=False)
-    dislike = models.BooleanField(default=False)
+from shared.models import BaseModel
+from users.models import UserModel
+class LikePostModel(BaseModel):
+    post = models.ForeignKey(PostUserModel, on_delete=models.CASCADE, related_name='like')
+    user = models.ForeignKey(UserModel, on_delete=models.CASCADE)
 
     def __str__(self) -> str:
         return self.post

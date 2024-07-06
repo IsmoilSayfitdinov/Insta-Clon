@@ -13,7 +13,7 @@ from rest_framework import status
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-
+from shared.permissions import IsOwner
 class SignUpCreateAPIView(CreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = SignUpSerializer
@@ -184,11 +184,11 @@ class GetReturnRefereshTokenAPIView(TokenRefreshView):
 
 
 class MyAccountView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsOwner]
     def get(self, request):
         myacc = UserModel.objects.filter(id=request.user.id)
 
-        if not myacc.exists():
+        if not myacc:
             return Response({
                 "success": False,
                 "message": "User not found"

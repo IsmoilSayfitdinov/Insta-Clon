@@ -3,6 +3,8 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from like.models import LikePostModel
 from rest_framework.response import Response
+from rest_framework import generics
+from .serializers import LikeSerializer
 # Create your views here.
 class LikePostView(APIView):
     permission_classes = [IsAuthenticated]
@@ -24,3 +26,10 @@ class LikePostView(APIView):
                 "message": "liked"
             }
             return Response(res)
+        
+class MyLikeUserView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = LikeSerializer
+    
+    def get_queryset(self):
+        return LikePostModel.objects.filter(user=self.request.user)

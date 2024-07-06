@@ -31,3 +31,6 @@ class PostSerializer(serializers.ModelSerializer):
     def get_me_like(self, obj):
         request = self.context.get('request', None)
         return LikePostModel.objects.filter(post=obj, user=request.user).exists()
+
+
+

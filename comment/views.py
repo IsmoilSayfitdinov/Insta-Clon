@@ -8,6 +8,7 @@ from post.models import PostUserModel
 from comment.models import CommentLikeModel
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from shared.permissions import IsOwner
 # Create your views here.
 class ComenntViewList(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
@@ -48,3 +49,41 @@ class CommnetLikeView(APIView):
                 "message": "liked"
             }
             return Response(res)
+        
+class CommentUpdateViewApi(APIView):
+    permission_classes = [IsAuthenticated, IsOwner]
+    serializer_class = CommentSerializer
+    
+    def put(self, request, pk):
+        comment = CommnentModel.objects.filter(pk=pk)
+        if not comment.exists():
+            return Response({"message": "not found"})
+        
+        serializer = CommentSerializer(comment.first(), data=request.data)
+        if serializer.is_valid():
+            self.check_object_permissions(obj=comment.first(), request=request)
+            serializer.save()
+            res = {
+                "sucsess": True,
+                "message": "updated"
+            }
+            return Response(res)
+        else:
+            return Response(serializer.errors)
+        
+class DelateCommnetView(APIView):
+    permission_classes = [IsAuthenticated, IsOwner]
+    serializer_class = CommentSerializer
+    
+    def delete(self, request, pk):
+        commnet = CommnentModel.objects.filter(pk=pk)
+        if not commnet.exists():
+            return Response({"message": "not found"})
+        
+        self.check_object_permissions(obj=commnet.first(), request=request)
+        commnet.delete()
+        res = {
+            "sucsess": True,
+            "message": "deleted"
+        }
+        return Response(res)

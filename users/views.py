@@ -180,3 +180,23 @@ class LogoutVIEW(APIView):
         
 class GetReturnRefereshTokenAPIView(TokenRefreshView):
     serializer_class = TokenObtainPairSerializer
+
+
+
+class MyAccountView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        myacc = UserModel.objects.filter(id=request.user.id)
+
+        if not myacc.exists():
+            return Response({
+                "success": False,
+                "message": "User not found"
+            })
+            
+        res = {
+            "success": True,
+            "mydata": myacc.values()[0]
+        }
+        
+        return Response(res)

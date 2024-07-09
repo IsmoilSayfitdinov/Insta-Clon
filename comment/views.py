@@ -24,6 +24,9 @@ class CreateCommnet(generics.CreateAPIView):
     serializer_class = CommentSerializer
     permission_classes = [IsAuthenticated]
     
+    def get_queryset(self):
+        return CommnentModel.objects.all()
+    
     def perform_create(self, serializer):
         post_id = self.kwargs.get("pk")
         serializer.save(user = self.request.user, post_id = post_id)
